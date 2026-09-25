@@ -18,7 +18,7 @@ public:
 	void postInitProperties() noexcept override;
 
 private:
-	static constexpr int DirThreshold = 50;
+	static constexpr int DirThreshold = 40;
 
 	Joystick* joystick;
 	ButtonInput* bi;

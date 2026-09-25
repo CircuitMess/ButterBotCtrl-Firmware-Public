@@ -1,4 +1,5 @@
 #include "JoystickInputLVGL.h"
+#include <cstdlib>
 
 JoystickInputLVGL::JoystickInputLVGL(Joystick* joystick, ButtonInput* bi, Enum<int> enterButton) :
 		Super(bi, {}, {}), joystick(joystick), bi(bi), enterButton(enterButton){
@@ -23,18 +24,24 @@ void JoystickInputLVGL::readJoystick(lv_indev_data_t* data){
 		const int h = joystick->getHorizontal();
 		const int v = joystick->getVertical();
 
-		if(h >= DirThreshold){
-			currentKey = LV_KEY_RIGHT;
-			pressed = true;
-		}else if(h <= -DirThreshold){
-			currentKey = LV_KEY_LEFT;
-			pressed = true;
-		}else if(v >= DirThreshold){
-			currentKey = LV_KEY_UP;
-			pressed = true;
-		}else if(v <= -DirThreshold){
-			currentKey = LV_KEY_DOWN;
-			pressed = true;
+		// Dominant axis wins. Checking horizontal first made a slightly diagonal
+		// "up" push register as LEFT/RIGHT, which the action list ignores.
+		if(std::abs(v) >= std::abs(h)){
+			if(v >= DirThreshold){
+				currentKey = LV_KEY_UP;
+				pressed = true;
+			}else if(v <= -DirThreshold){
+				currentKey = LV_KEY_DOWN;
+				pressed = true;
+			}
+		}else{
+			if(h >= DirThreshold){
+				currentKey = LV_KEY_RIGHT;
+				pressed = true;
+			}else if(h <= -DirThreshold){
+				currentKey = LV_KEY_LEFT;
+				pressed = true;
+			}
 		}
 	}
 

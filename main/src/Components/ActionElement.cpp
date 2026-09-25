@@ -135,9 +135,9 @@ lv_obj_t* ActionElement::addButton(const char* title, const char* phrases){
 	lv_obj_add_event_cb(btn, [](lv_event_t* e) {
 		const auto el = (ActionElement*)lv_event_get_user_data(e);
 		const uint32_t key = lv_event_get_key(e);
-		if(key == LV_KEY_DOWN){
+		if(key == LV_KEY_DOWN || key == LV_KEY_RIGHT){
 			el->moveFocus(1);
-		} else if(key == LV_KEY_UP){
+		} else if(key == LV_KEY_UP || key == LV_KEY_LEFT){
 			el->moveFocus(-1);
 		}
 	}, LV_EVENT_KEY, this);
