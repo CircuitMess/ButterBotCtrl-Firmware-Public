@@ -10,6 +10,7 @@ Com::Com(BLE::Client* client, bool internalStack) : AsyncEntity(10, 3 * 1024, CO
 	txChar = service->addChar(RxCharUID, ESP_GATT_CHAR_PROP_BIT_WRITE);
 
 	service->setOnConnectCb([this]() {
+		sensorSyncPending = true;
 		status = ConnStatus::Connected;
 		onConnStatus.broadcast(ConnStatus::Connected);
 	});
@@ -24,6 +25,14 @@ Com::Com(BLE::Client* client, bool internalStack) : AsyncEntity(10, 3 * 1024, CO
 	});
 
 	txBuf.reserve(BufSize);
+}
+
+void Com::setSensorCommand(Ctrl::Command command){
+	sensorCommand = command;
+	if(status == ConnStatus::Connected){
+		sendCommand(command); // called from the UI thread, like the other send* calls
+	}
+	// On every (re)connect the Com thread re-sends the current value (see tick)
 }
 
 Com::ConnStatus Com::getStatus() const{
@@ -82,6 +91,14 @@ void Com::tick(float deltaTime) noexcept{
 
 	auto gap = Application::getApp()->getSingleton<BLE::GAP>();
 	if(!gap->isConnected() || !service->populated() || !rxChar->connected() || !txChar->connected()) return; // TODO: Stop service on disconnect, start on reconnect
+
+	if(sensorSyncPending.exchange(false)){
+		// Local buffer: txBuf is used by the UI thread
+		const Ctrl::Command cmd = sensorCommand.load();
+		std::vector<uint8_t> buf(sizeof(Ctrl::Command));
+		memcpy(buf.data(), &cmd, sizeof(Ctrl::Command));
+		txChar->write(buf);
+	}
 
 	auto notif = rxChar->getNextNotif(portMAX_DELAY);
 	if(!notif || notif->data.empty()) return;

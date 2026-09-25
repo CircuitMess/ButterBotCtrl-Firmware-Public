@@ -1,6 +1,7 @@
 #include "SettingsWindow.h"
 
 #include "Fonts/font.hpp"
+#include "Services/Com.h"
 
 SettingsWindow::SettingsWindow(lv_obj_t* parent, lv_group_t* inputGroup, const std::function<void(const Theme& newTheme)>& themeCb)
 	: LVObject(parent), inputGroup(inputGroup), themeCb(themeCb){
@@ -16,6 +17,7 @@ SettingsWindow::~SettingsWindow(){
 	lv_anim_delete(themeSelector, nullptr);
 	lv_anim_delete(sleepSelector, nullptr);
 	lv_anim_delete(brightnessSlider, nullptr);
+	lv_anim_delete(sensorSelector, nullptr);
 }
 
 void SettingsWindow::buildUI(lv_obj_t* parent){
@@ -98,22 +100,26 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		lv_anim_delete(themeSelector->widgetLabel, nullptr);
 		lv_anim_delete(sleepSelector->widgetLabel, nullptr);
 		lv_anim_delete(brightnessSlider->widgetLabel, nullptr);
+		lv_anim_delete(sensorSelector->widgetLabel, nullptr);
 		lv_obj_set_style_opa(themeSelector->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(sleepSelector->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(brightnessSlider->widgetLabel, LV_OPA_COVER, 0);
+		lv_obj_set_style_opa(sensorSelector->widgetLabel, LV_OPA_COVER, 0);
 
 		if(key == LV_KEY_DOWN){
-			currentFocusIndex = (currentFocusIndex + 1) % 3;
+			currentFocusIndex = (currentFocusIndex + 1) % RowCount;
 		} else{
-			currentFocusIndex = (currentFocusIndex + 2) % 3;
+			currentFocusIndex = (currentFocusIndex + RowCount - 1) % RowCount;
 		}
 
 		if(currentFocusIndex == 0){
 			lv_anim_set_var(&blinkAnim, themeSelector->widgetLabel);
 		} else if(currentFocusIndex == 1){
 			lv_anim_set_var(&blinkAnim, sleepSelector->widgetLabel);
-		} else{
+		} else if(currentFocusIndex == 2){
 			lv_anim_set_var(&blinkAnim, brightnessSlider->widgetLabel);
+		} else{
+			lv_anim_set_var(&blinkAnim, sensorSelector->widgetLabel);
 		}
 		lv_anim_start(&blinkAnim);
 		lv_group_focus_obj(lv_obj_get_child(innerContent, currentFocusIndex));
@@ -121,7 +127,7 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 
 	// Theme selector
 	themeSelector = new ThemeSelector(innerContent, switchCb, themeCb);
-	lv_obj_set_pos(*themeSelector, 2, 4);
+	lv_obj_set_pos(*themeSelector, 2, 2);
 	lv_group_add_obj(inputGroup, *themeSelector);
 	// Set init animation
 	lv_anim_set_var(&blinkAnim, themeSelector->widgetLabel);
@@ -134,7 +140,7 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		settings->set(currentSet);
 	};
 	sleepSelector = new SleepSelector(innerContent, initSet.inactivityTimeout, switchCb, sleepValCb);
-	lv_obj_set_pos(*sleepSelector, 2, 26);
+	lv_obj_set_pos(*sleepSelector, 2, 22);
 	lv_group_add_obj(inputGroup, *sleepSelector);
 
 	// Brightness slider
@@ -145,8 +151,19 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		settings->set(currentSet);
 	};
 	brightnessSlider = new BrightnessSlider(innerContent, initSet.screenBrightness, brightnessValCb, switchCb);
-	lv_obj_set_pos(*brightnessSlider, 2, 48);
+	lv_obj_set_pos(*brightnessSlider, 2, 43);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
+
+	// proximity sensor filter, sent to the robot right away and on every connect
+	auto sensorValCb = [this](const SensorMode mode) {
+		settings->setSensorMode(mode);
+		if(Com* com = Application::getApp()->getService<Com>()){
+			com->setSensorCommand(sensorModeToCommand(mode));
+		}
+	};
+	sensorSelector = new SensorSelector(innerContent, settings->getSensorMode(), switchCb, sensorValCb);
+	lv_obj_set_pos(*sensorSelector, 2, 56);
+	lv_group_add_obj(inputGroup, *sensorSelector);
 
 	lv_group_set_editing(inputGroup, true);
 
