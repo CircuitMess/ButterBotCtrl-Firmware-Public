@@ -30,6 +30,10 @@ void Settings::store() const{
 	if(err != ESP_OK){
 		CMF_LOG(Settings, LogLevel::Error, "Error storing sensor mode: %s", esp_err_to_name(err));
 	}
+	err = nvs_set_u8(handle, RoamingKey, roaming ? 1 : 0);
+	if(err != ESP_OK){
+		CMF_LOG(Settings, LogLevel::Error, "Error storing roaming: %s", esp_err_to_name(err));
+	}
 	nvs_commit(handle);
 }
 
@@ -39,6 +43,14 @@ SensorMode Settings::getSensorMode() const{
 
 void Settings::setSensorMode(SensorMode mode){
 	sensorMode = mode;
+}
+
+bool Settings::getRoaming() const{
+	return roaming;
+}
+
+void Settings::setRoaming(bool roaming){
+	this->roaming = roaming;
 }
 
 void Settings::load(){
@@ -55,6 +67,9 @@ void Settings::load(){
 	}else{
 		sensorMode = SensorMode::AllOn;
 	}
+
+	uint8_t roamingVal = 1;
+	roaming = nvs_get_u8(handle, RoamingKey, &roamingVal) != ESP_OK || roamingVal != 0;
 
 	switch(settingsStruct.inactivityTimeout){
 		case InactivityTimeout::Min2:

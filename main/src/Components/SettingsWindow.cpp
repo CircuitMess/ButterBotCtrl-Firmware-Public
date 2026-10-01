@@ -18,6 +18,7 @@ SettingsWindow::~SettingsWindow(){
 	lv_anim_delete(sleepSelector, nullptr);
 	lv_anim_delete(brightnessSlider, nullptr);
 	lv_anim_delete(sensorSelector, nullptr);
+	lv_anim_delete(roamingSelector, nullptr);
 }
 
 void SettingsWindow::buildUI(lv_obj_t* parent){
@@ -101,10 +102,12 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		lv_anim_delete(sleepSelector->widgetLabel, nullptr);
 		lv_anim_delete(brightnessSlider->widgetLabel, nullptr);
 		lv_anim_delete(sensorSelector->widgetLabel, nullptr);
+		lv_anim_delete(roamingSelector->widgetLabel, nullptr);
 		lv_obj_set_style_opa(themeSelector->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(sleepSelector->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(brightnessSlider->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(sensorSelector->widgetLabel, LV_OPA_COVER, 0);
+		lv_obj_set_style_opa(roamingSelector->widgetLabel, LV_OPA_COVER, 0);
 
 		if(key == LV_KEY_DOWN){
 			currentFocusIndex = (currentFocusIndex + 1) % RowCount;
@@ -118,8 +121,10 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 			lv_anim_set_var(&blinkAnim, sleepSelector->widgetLabel);
 		} else if(currentFocusIndex == 2){
 			lv_anim_set_var(&blinkAnim, brightnessSlider->widgetLabel);
-		} else{
+		} else if(currentFocusIndex == 3){
 			lv_anim_set_var(&blinkAnim, sensorSelector->widgetLabel);
+		} else{
+			lv_anim_set_var(&blinkAnim, roamingSelector->widgetLabel);
 		}
 		lv_anim_start(&blinkAnim);
 		lv_group_focus_obj(lv_obj_get_child(innerContent, currentFocusIndex));
@@ -127,7 +132,7 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 
 	// Theme selector
 	themeSelector = new ThemeSelector(innerContent, switchCb, themeCb);
-	lv_obj_set_pos(*themeSelector, 2, 2);
+	lv_obj_set_pos(*themeSelector, 2, 1);
 	lv_group_add_obj(inputGroup, *themeSelector);
 	// Set init animation
 	lv_anim_set_var(&blinkAnim, themeSelector->widgetLabel);
@@ -140,7 +145,7 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		settings->set(currentSet);
 	};
 	sleepSelector = new SleepSelector(innerContent, initSet.inactivityTimeout, switchCb, sleepValCb);
-	lv_obj_set_pos(*sleepSelector, 2, 22);
+	lv_obj_set_pos(*sleepSelector, 2, 17);
 	lv_group_add_obj(inputGroup, *sleepSelector);
 
 	// Brightness slider
@@ -151,7 +156,7 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		settings->set(currentSet);
 	};
 	brightnessSlider = new BrightnessSlider(innerContent, initSet.screenBrightness, brightnessValCb, switchCb);
-	lv_obj_set_pos(*brightnessSlider, 2, 43);
+	lv_obj_set_pos(*brightnessSlider, 2, 34);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
 	// proximity sensor filter, sent to the robot right away and on every connect
@@ -162,8 +167,19 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		}
 	};
 	sensorSelector = new SensorSelector(innerContent, settings->getSensorMode(), switchCb, sensorValCb);
-	lv_obj_set_pos(*sensorSelector, 2, 56);
+	lv_obj_set_pos(*sensorSelector, 2, 42);
 	lv_group_add_obj(inputGroup, *sensorSelector);
+
+	// idle roaming on / off, sent to the robot right away and on every connect
+	auto roamingValCb = [this](const bool roaming) {
+		settings->setRoaming(roaming);
+		if(Com* com = Application::getApp()->getService<Com>()){
+			com->setRoamingCommand(roaming ? Ctrl::RoamingOn : Ctrl::RoamingOff);
+		}
+	};
+	roamingSelector = new RoamingSelector(innerContent, settings->getRoaming(), switchCb, roamingValCb);
+	lv_obj_set_pos(*roamingSelector, 2, 58);
+	lv_group_add_obj(inputGroup, *roamingSelector);
 
 	lv_group_set_editing(inputGroup, true);
 

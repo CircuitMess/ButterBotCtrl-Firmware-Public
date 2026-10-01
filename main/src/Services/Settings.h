@@ -46,10 +46,16 @@ public:
 	SensorMode getSensorMode() const;
 	void setSensorMode(SensorMode mode);
 
+	// idle roaming (wandering, turning to faces), stored separately like the sensor mode
+	bool getRoaming() const;
+	void setRoaming(bool roaming);
+
 private:
 	SettingsStruct settingsStruct;
 	SensorMode sensorMode = SensorMode::AllOn;
 	static constexpr const char* SensorKey = "Sensors";
+	bool roaming = true;
+	static constexpr const char* RoamingKey = "Roaming";
 
 	static constexpr const char* BlobName = "Settings";
 	static constexpr const char* NVSNamespace = "ButterbotCtrl";

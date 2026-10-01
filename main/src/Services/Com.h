@@ -33,6 +33,9 @@ public:
 	// Call from the UI thread.
 	void setSensorCommand(Ctrl::Command command);
 
+	// idle roaming (Ctrl::RoamingOn / RoamingOff); same as setSensorCommand
+	void setRoamingCommand(Ctrl::Command command);
+
 protected:
 	void tick(float deltaTime) noexcept override;
 
@@ -63,6 +66,7 @@ private:
 	std::vector<uint8_t> txBuf;
 
 	std::atomic<Ctrl::Command> sensorCommand{ Ctrl::SensorsAllOn };
+	std::atomic<Ctrl::Command> roamingCommand{ Ctrl::RoamingOn };
 	std::atomic<bool> sensorSyncPending{ false };
 
 };

@@ -35,6 +35,13 @@ void Com::setSensorCommand(Ctrl::Command command){
 	// On every (re)connect the Com thread re-sends the current value (see tick)
 }
 
+void Com::setRoamingCommand(Ctrl::Command command){
+	roamingCommand = command;
+	if(status == ConnStatus::Connected){
+		sendCommand(command);
+	}
+}
+
 Com::ConnStatus Com::getStatus() const{
 	return status;
 }
@@ -94,10 +101,11 @@ void Com::tick(float deltaTime) noexcept{
 
 	if(sensorSyncPending.exchange(false)){
 		// Local buffer: txBuf is used by the UI thread
-		const Ctrl::Command cmd = sensorCommand.load();
-		std::vector<uint8_t> buf(sizeof(Ctrl::Command));
-		memcpy(buf.data(), &cmd, sizeof(Ctrl::Command));
-		txChar->write(buf);
+		for(const Ctrl::Command cmd : { sensorCommand.load(), roamingCommand.load() }){
+			std::vector<uint8_t> buf(sizeof(Ctrl::Command));
+			memcpy(buf.data(), &cmd, sizeof(Ctrl::Command));
+			txChar->write(buf);
+		}
 	}
 
 	auto notif = rxChar->getNextNotif(portMAX_DELAY);

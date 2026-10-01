@@ -63,11 +63,11 @@ void ThemeSelector::buildUI(lv_obj_t* parent){
 	lv_obj_add_style(widgetLabel, labelDefaultStyle, 0);
 	lv_label_set_text(widgetLabel, "THEME");
 	lv_obj_set_width(widgetLabel, 24);
-	lv_obj_set_pos(widgetLabel, 2, 5);
+	lv_obj_set_pos(widgetLabel, 2, 4);
 
 	// Selector container
 	lv_obj_t* selector = lv_obj_create(*this);
-	lv_obj_set_size(selector, 83, 18);
+	lv_obj_set_size(selector, 83, 15);
 	lv_obj_set_pos(selector, 28, 0);
 	lv_obj_set_style_border_width(selector, 1, 0);
 	lv_obj_set_style_border_color(selector, colorPrim, 0);
@@ -80,7 +80,7 @@ void ThemeSelector::buildUI(lv_obj_t* parent){
 	lv_obj_add_style(selectorLabel, labelDefaultStyle, 0);
 	lv_label_set_text(selectorLabel, ThemeNameMap.at(currentThemeIndex));
 	lv_obj_set_width(selectorLabel, 69);
-	lv_obj_set_pos(selectorLabel, 7, 4);
+	lv_obj_set_pos(selectorLabel, 7, 3);
 	lv_obj_set_style_text_align(selectorLabel, LV_TEXT_ALIGN_CENTER, 0);
 	lv_obj_set_style_bg_opa(selectorLabel, LV_OPA_TRANSP, 0);
 
@@ -88,11 +88,11 @@ void ThemeSelector::buildUI(lv_obj_t* parent){
 	lv_obj_t* selectorLeft = lv_image_create(selector);
 	lv_image_set_src(selectorLeft, theme->getAsset(Asset::SettingsLeft));
 	lv_obj_set_style_bg_opa(selectorLeft, LV_OPA_TRANSP, 0);
-	lv_obj_set_pos(selectorLeft, 2, 3);
+	lv_obj_set_pos(selectorLeft, 2, 2);
 
 	// Selector right icon
 	lv_obj_t* selectorRight = lv_image_create(selector);
 	lv_image_set_src(selectorRight, theme->getAsset(Asset::SettingsRight));
 	lv_obj_set_style_bg_opa(selectorRight, LV_OPA_TRANSP, 0);
-	lv_obj_set_pos(selectorRight, 73, 3);
+	lv_obj_set_pos(selectorRight, 73, 2);
 }

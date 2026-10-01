@@ -13,6 +13,7 @@
 #include "Components/SettingsWindow/ThemeSelector.h"
 #include "Components/SettingsWindow/SleepSelector.h"
 #include "Components/SettingsWindow/SensorSelector.h"
+#include "Components/SettingsWindow/RoamingSelector.h"
 
 class SettingsWindow : public LVObject {
 public:
@@ -37,6 +38,7 @@ private:
 	SleepSelector* sleepSelector;
 	BrightnessSlider* brightnessSlider;
 	SensorSelector* sensorSelector;
+	RoamingSelector* roamingSelector;
 
 	lv_obj_t* innerContent;
 	LVStyle labelDefaultStyle;
@@ -54,7 +56,7 @@ private:
 
 	static constexpr int32_t WindowWidth = 120;
 	static constexpr int32_t WindowHeight = 76;
-	static constexpr int32_t RowCount = 4;
+	static constexpr int32_t RowCount = 5;
 	static constexpr const char* WindowTitle = "Settings";
 
 	const std::function<void(const Theme &newTheme)> themeCb;
