@@ -52,7 +52,7 @@ void CurrentTimeWindow::buildUI(const CurrentTimeData data){
 			lv_obj_set_style_text_align(timeLabel, LV_TEXT_ALIGN_CENTER, 0);
 			lv_obj_set_style_pad_ver(timeLabel, 16, 0);
 
-			const std::string timeFormatStr = std::format("{}:{}", data.currentTime.tm_hour, data.currentTime.tm_min);
+			const std::string timeFormatStr = std::format("{:02}:{:02}", data.currentTime.tm_hour, data.currentTime.tm_min);
 			lv_label_set_text(timeLabel, timeFormatStr.c_str());
 			lv_obj_set_size(timeContainer, winW, LV_SIZE_CONTENT);
 			lv_obj_set_size(timeLabel, winW, LV_SIZE_CONTENT);
