@@ -120,6 +120,7 @@ void BLE::Client::onPairDone(){
 void BLE::Client::onOpen(const esp_ble_gattc_cb_param_t::gattc_open_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "open failed, error status = 0x%x", param->status);
+		close(); // back to Idle, so PairingScreen connects again instead of waiting in Connecting
 		return;
 	}
 
@@ -156,6 +157,9 @@ void BLE::Client::onSearchResult(const esp_ble_gattc_cb_param_t::gattc_search_re
 void BLE::Client::onSearchComplete(const esp_ble_gattc_cb_param_t::gattc_search_cmpl_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "search service failed, error status = %x", param->status);
+		// Drop the broken link now instead of waiting for the robot to time it out; the disconnect event
+		// closes it and PairingScreen connects again
+		esp_ble_gap_disconnect(con.addr);
 		return;
 	}
 
