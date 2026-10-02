@@ -168,6 +168,7 @@ protected:
 		Settings* settings = registerService<Settings>();
 		if(settings != nullptr){
 			ledService->on(LEDs::TftBacklight, settings->get().screenBrightness);
+			com->setSensorCommand(sensorModeToCommand(settings->getSensorMode()));
 		}
 
 		if(!SPIFFS::init()){
