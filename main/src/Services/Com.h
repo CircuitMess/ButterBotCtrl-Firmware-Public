@@ -7,6 +7,7 @@
 #include <Scenarios.h>
 #include <Entity/AsyncEntity.h>
 #include <Event/EventBroadcaster.h>
+#include <atomic>
 
 class Com : public AsyncEntity {
 	GENERATED_BODY(Com, AsyncEntity, CONSTRUCTOR_PACK(BLE::Client * ))
@@ -27,6 +28,13 @@ public:
 	void sendDrive(DriveData data);
 	void sendRC(RCData data);
 	void sendScenario(BB::Action::Scenario scenario, ScenarioData data);
+
+	// proximity sensor filter; sent now if connected and again on every (re)connect.
+	// Call from the UI thread.
+	void setSensorCommand(Ctrl::Command command);
+
+	// idle roaming (Ctrl::RoamingOn / RoamingOff); same as setSensorCommand
+	void setRoamingCommand(Ctrl::Command command);
 
 protected:
 	void tick(float deltaTime) noexcept override;
@@ -56,6 +64,10 @@ private:
 
 	static constexpr size_t BufSize = 16;
 	std::vector<uint8_t> txBuf;
+
+	std::atomic<Ctrl::Command> sensorCommand{ Ctrl::SensorsAllOn };
+	std::atomic<Ctrl::Command> roamingCommand{ Ctrl::RoamingOn };
+	std::atomic<bool> sensorSyncPending{ false };
 
 };
 

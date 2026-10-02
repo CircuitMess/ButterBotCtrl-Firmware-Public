@@ -168,6 +168,8 @@ protected:
 		Settings* settings = registerService<Settings>();
 		if(settings != nullptr){
 			ledService->on(LEDs::TftBacklight, settings->get().screenBrightness);
+			com->setSensorCommand(sensorModeToCommand(settings->getSensorMode()));
+			com->setRoamingCommand(settings->getRoaming() ? Ctrl::RoamingOn : Ctrl::RoamingOff);
 		}
 
 		if(!SPIFFS::init()){

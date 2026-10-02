@@ -123,12 +123,7 @@ void SettingsScreen::buildUI(){
 	lv_obj_set_style_bg_opa(windowContainer, LV_OPA_COVER, 0);
 	lv_obj_set_style_bg_image_src(windowContainer, theme->getAsset(Asset::Grid), 0);
 
-	// Joystick return text label
-	lv_obj_t* joystickLabel = lv_label_create(*this);
-	lv_obj_add_style(joystickLabel, labelDefaultStyle, 0);
-	lv_label_set_text(joystickLabel, JoystickText);
-	lv_obj_set_width(joystickLabel, 120);
-	lv_obj_set_pos(joystickLabel, 6, 84);
+	// "Press joystick to return" hint removed to make room for the SENSOR row
 
 	// Footer container
 	lv_obj_t* footerContainer = lv_obj_create(*this);

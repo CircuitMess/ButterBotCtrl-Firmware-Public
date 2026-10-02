@@ -1,6 +1,8 @@
 #include "GuideElement.h"
 
 #include "Fonts/font.hpp"
+#include <vector>
+#include <Services/Settings.h>
 
 static constexpr const char* Lines[] = {
 		"Override: Hold for RC",
@@ -29,7 +31,19 @@ void GuideElement::buildUI(){
 	lv_obj_set_style_bg_opa(*this, LV_OPA_TRANSP, 0);
 
 	const lv_color_t colorPrim = theme->getPrimaryColor();
-	for(const char* text : Lines){
+
+	// reminder while robot proximity sensors are ignored
+	std::vector<const char*> lines(std::begin(Lines), std::end(Lines));
+	if(Settings* settings = Application::getApp()->getService<Settings>()){
+		switch(settings->getSensorMode()){
+			case SensorMode::FrontOff: lines.push_back("SENSORS: FRONT OFF"); break;
+			case SensorMode::FloorOff: lines.push_back("SENSORS: FLOOR OFF"); break;
+			case SensorMode::AllOff: lines.push_back("SENSORS: ALL OFF"); break;
+			default: break;
+		}
+	}
+
+	for(const char* text : lines){
 		lv_obj_t* label = lv_label_create(*this);
 		lv_label_set_text_static(label, text);
 		lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);

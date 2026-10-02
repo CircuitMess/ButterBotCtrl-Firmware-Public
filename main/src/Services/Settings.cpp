@@ -26,7 +26,31 @@ void Settings::store() const{
 		CMF_LOG(Settings, LogLevel::Error, "Error storing settings: %s", esp_err_to_name(err));
 		return;
 	}
+	err = nvs_set_u8(handle, SensorKey, static_cast<uint8_t>(sensorMode));
+	if(err != ESP_OK){
+		CMF_LOG(Settings, LogLevel::Error, "Error storing sensor mode: %s", esp_err_to_name(err));
+	}
+	err = nvs_set_u8(handle, RoamingKey, roaming ? 1 : 0);
+	if(err != ESP_OK){
+		CMF_LOG(Settings, LogLevel::Error, "Error storing roaming: %s", esp_err_to_name(err));
+	}
 	nvs_commit(handle);
+}
+
+SensorMode Settings::getSensorMode() const{
+	return sensorMode;
+}
+
+void Settings::setSensorMode(SensorMode mode){
+	sensorMode = mode;
+}
+
+bool Settings::getRoaming() const{
+	return roaming;
+}
+
+void Settings::setRoaming(bool roaming){
+	this->roaming = roaming;
 }
 
 void Settings::load(){
@@ -36,6 +60,16 @@ void Settings::load(){
 		CMF_LOG(Settings, LogLevel::Warning, "No stored settings found, using defaults: %s", esp_err_to_name(err));
 		settingsStruct = SettingsStruct();
 	}
+
+	uint8_t sensorVal = 0;
+	if(nvs_get_u8(handle, SensorKey, &sensorVal) == ESP_OK && sensorVal <= static_cast<uint8_t>(SensorMode::AllOff)){
+		sensorMode = static_cast<SensorMode>(sensorVal);
+	}else{
+		sensorMode = SensorMode::AllOn;
+	}
+
+	uint8_t roamingVal = 1;
+	roaming = nvs_get_u8(handle, RoamingKey, &roamingVal) != ESP_OK || roamingVal != 0;
 
 	switch(settingsStruct.inactivityTimeout){
 		case InactivityTimeout::Min2:
