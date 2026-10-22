@@ -4,6 +4,7 @@
 #include "Object/Object.h"
 #include "Object/Class.h"
 #include <nvs.h>
+#include <CtrlData.h>
 
 #include "Themes.hpp"
 
@@ -15,6 +16,9 @@ struct SettingsStruct {
 	float screenBrightness = 1.0f;
 	Theme currentTheme = Theme::Main;
 	InactivityTimeout inactivityTimeout = InactivityTimeout::Min10;
+	FrontSensorMode frontSensor = FrontSensorMode::On;
+	BottomSensorMode bottomSensor = BottomSensorMode::Reduced;
+	ActivityMode activityMode = ActivityMode::Active;
 };
 
 class Settings : public Object {

@@ -36,6 +36,10 @@ SettingsScreen::SettingsScreen(){
 		}
 	});
 
+	com->onData.bind(app->getService<LVGL>(), [this](const BB::State state, const BB::Action action, const std::vector<uint8_t>& data) {
+		handleDataEvent(state, action, data);
+	});
+
 	buildUI();
 }
 
@@ -43,6 +47,28 @@ SettingsScreen::~SettingsScreen(){
 	const auto app = Application::getApp();
 	buttonInput->OnButtonEvent.unbind(app->getService<LVGL>());
 	com->onConnStatus.unbind(app->getService<LVGL>());
+	com->onData.unbind(app->getService<LVGL>());
+}
+
+void SettingsScreen::handleDataEvent(const BB::State state, const BB::Action action, const std::vector<uint8_t>& data){
+	if(state != BB::State::Idle || action.idle != BB::Action::Idle::SettingsSync){
+		return;
+	}
+
+	if(data.size() != sizeof(SettingsSyncData)){
+		return;
+	}
+
+	const SettingsSyncData* sync = (const SettingsSyncData*)data.data();
+	SettingsStruct currentSet = settings->get();
+	currentSet.frontSensor = sync->frontSensor;
+	currentSet.bottomSensor = sync->bottomSensor;
+	currentSet.activityMode = sync->activityMode;
+	settings->set(currentSet);
+
+	if(settingsWindow != nullptr){
+		settingsWindow->syncRobotSettings(currentSet);
+	}
 }
 
 void SettingsScreen::handleButtonEvent(const Button btn, const ButtonInput::Action action){
@@ -56,6 +82,9 @@ void SettingsScreen::handleButtonEvent(const Button btn, const ButtonInput::Acti
 			});
 			return;
 		}
+
+		const SettingsStruct currentSet = settings->get();
+		com->sendSettings({ .frontSensor = currentSet.frontSensor, .bottomSensor = currentSet.bottomSensor, .activityMode = currentSet.activityMode });
 
 		// Return to home screen
 		transition([]() {

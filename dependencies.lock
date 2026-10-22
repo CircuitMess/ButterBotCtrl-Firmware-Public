@@ -1,6 +1,6 @@
 dependencies:
   LIS2DW12:
-    component_hash: fab8d690a6f1a5b109756225508a50dfe1f684efc2bd4f3d350480a2c3c8945b
+    component_hash: 10ef2732242524292adb799f2043adb99ab45883f622a2624a882176c0118c26
     dependencies: []
     source:
       git: https://github.com/CircuitMess/lis2dw12-pid.git
@@ -8,7 +8,7 @@ dependencies:
       type: git
     version: c8b9bda60d70753d736a4700f9a325af07c7d3e2
   LovyanGFX:
-    component_hash: 0de4f2fe296403116df4f27fcc0e27efa1d1cca7346d0258f6abfaee2d054864
+    component_hash: 24e7b4fbdfc5ac424b47fa19e405b548b5a436bc777b15fad6e2f98b881afd6c
     dependencies: []
     source:
       git: https://github.com/lovyan03/LovyanGFX.git
@@ -35,7 +35,7 @@ dependencies:
     - esp32h4
     version: 1.0.2
   heatshrink:
-    component_hash: 9d43ee0e54233c4438a42ac4e90438e007e259c9e094345353caf930ab33d756
+    component_hash: ce88e39839b89668362184ba017e2e927bedade642e0667c2c9e1a2044bb4825
     dependencies:
     - name: idf
       version: '>=5'

@@ -12,6 +12,9 @@
 #include "Components/SettingsWindow/BrightnessSlider.h"
 #include "Components/SettingsWindow/ThemeSelector.h"
 #include "Components/SettingsWindow/SleepSelector.h"
+#include "Components/SettingsWindow/FrontSensorSelector.h"
+#include "Components/SettingsWindow/BottomSensorSelector.h"
+#include "Components/SettingsWindow/ActivitySelector.h"
 
 class SettingsWindow : public LVObject {
 public:
@@ -26,6 +29,8 @@ public:
 	/* Main update loop, called by the parent */
 	virtual void loop(){};
 
+	void syncRobotSettings(const SettingsStruct& currentSet);
+
 private:
 	ThemeService* theme;
 	Settings* settings;
@@ -35,6 +40,9 @@ private:
 	ThemeSelector* themeSelector;
 	SleepSelector* sleepSelector;
 	BrightnessSlider* brightnessSlider;
+	FrontSensorSelector* frontSensorSelector;
+	BottomSensorSelector* bottomSensorSelector;
+	ActivitySelector* activitySelector;
 
 	lv_obj_t* innerContent;
 	LVStyle labelDefaultStyle;
@@ -49,6 +57,8 @@ private:
 	lv_obj_t* corner;
 
 	int32_t currentFocusIndex = 0;
+	static constexpr int32_t WidgetsNum = 6;
+	static constexpr int32_t ScrollMargin = 4;
 
 	static constexpr int32_t WindowWidth = 120;
 	static constexpr int32_t WindowHeight = 60;

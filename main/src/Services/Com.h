@@ -27,6 +27,7 @@ public:
 	void sendDrive(DriveData data);
 	void sendRC(RCData data);
 	void sendScenario(BB::Action::Scenario scenario, ScenarioData data);
+	void sendSettings(SettingsData data);
 
 protected:
 	void tick(float deltaTime) noexcept override;

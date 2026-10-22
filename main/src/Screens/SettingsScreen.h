@@ -34,6 +34,7 @@ private:
 	void loop() override;
 
 	void handleButtonEvent(Button btn, ButtonInput::Action action);
+	void handleDataEvent(BB::State state, BB::Action action, const std::vector<uint8_t>& data);
 	void buildUI();
 	void switchTheme(const Theme &newTheme);
 };

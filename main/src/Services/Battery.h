@@ -108,9 +108,9 @@ public:
 
 private:
 	static constexpr uint32_t MeasureIntverval = 200;
-	static constexpr float VoltEmpty = 3700;
+	static constexpr float VoltEmpty = 3600;
 
-	static constexpr float VoltFull = 4500;
+	static constexpr float VoltFull = 4300;
 	static constexpr float Factor = 4.0f;
 	static constexpr float Offset = 80; // Voltage drop offset (due to screen backlight and LEDs) [mV]
 	static constexpr float EmaA = 0.1f;

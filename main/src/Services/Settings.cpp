@@ -48,4 +48,34 @@ void Settings::load(){
 			settingsStruct.inactivityTimeout = SettingsStruct().inactivityTimeout;
 			break;
 	}
+
+	switch(settingsStruct.frontSensor){
+		case FrontSensorMode::Off:
+		case FrontSensorMode::On:
+			break;
+		default:
+			settingsStruct.frontSensor = SettingsStruct().frontSensor;
+			break;
+	}
+
+	switch(settingsStruct.bottomSensor){
+		case BottomSensorMode::Off:
+		case BottomSensorMode::Reduced:
+		case BottomSensorMode::On:
+			break;
+		default:
+			settingsStruct.bottomSensor = SettingsStruct().bottomSensor;
+			break;
+	}
+
+	switch(settingsStruct.activityMode){
+		case ActivityMode::Off:
+		case ActivityMode::Chill:
+		case ActivityMode::Active:
+		case ActivityMode::Hyper:
+			break;
+		default:
+			settingsStruct.activityMode = SettingsStruct().activityMode;
+			break;
+	}
 }

@@ -16,6 +16,9 @@ SettingsWindow::~SettingsWindow(){
 	lv_anim_delete(themeSelector, nullptr);
 	lv_anim_delete(sleepSelector, nullptr);
 	lv_anim_delete(brightnessSlider, nullptr);
+	lv_anim_delete(frontSensorSelector, nullptr);
+	lv_anim_delete(bottomSensorSelector, nullptr);
+	lv_anim_delete(activitySelector, nullptr);
 }
 
 void SettingsWindow::buildUI(lv_obj_t* parent){
@@ -50,7 +53,8 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 	lv_obj_set_size(innerContent, WindowWidth, WindowHeight);
 	lv_obj_set_style_bg_color(innerContent, colorTert, 0);
 	lv_obj_set_style_bg_opa(innerContent, LV_OPA_COVER, 0);
-	lv_obj_remove_flag(innerContent, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_scroll_dir(innerContent, LV_DIR_VER);
+	lv_obj_set_scrollbar_mode(innerContent, LV_SCROLLBAR_MODE_OFF);
 
 	// TITLE
 	lv_obj_set_size(titleEl, LV_SIZE_CONTENT, 6);
@@ -98,25 +102,55 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 		lv_anim_delete(themeSelector->widgetLabel, nullptr);
 		lv_anim_delete(sleepSelector->widgetLabel, nullptr);
 		lv_anim_delete(brightnessSlider->widgetLabel, nullptr);
+		lv_anim_delete(frontSensorSelector->widgetLabel, nullptr);
+		lv_anim_delete(bottomSensorSelector->widgetLabel, nullptr);
+		lv_anim_delete(activitySelector->widgetLabel, nullptr);
 		lv_obj_set_style_opa(themeSelector->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(sleepSelector->widgetLabel, LV_OPA_COVER, 0);
 		lv_obj_set_style_opa(brightnessSlider->widgetLabel, LV_OPA_COVER, 0);
+		lv_obj_set_style_opa(frontSensorSelector->widgetLabel, LV_OPA_COVER, 0);
+		lv_obj_set_style_opa(bottomSensorSelector->widgetLabel, LV_OPA_COVER, 0);
+		lv_obj_set_style_opa(activitySelector->widgetLabel, LV_OPA_COVER, 0);
 
 		if(key == LV_KEY_DOWN){
-			currentFocusIndex = (currentFocusIndex + 1) % 3;
+			currentFocusIndex = (currentFocusIndex + 1) % WidgetsNum;
 		} else{
-			currentFocusIndex = (currentFocusIndex + 2) % 3;
+			currentFocusIndex = (currentFocusIndex + WidgetsNum - 1) % WidgetsNum;
 		}
 
 		if(currentFocusIndex == 0){
 			lv_anim_set_var(&blinkAnim, themeSelector->widgetLabel);
 		} else if(currentFocusIndex == 1){
 			lv_anim_set_var(&blinkAnim, sleepSelector->widgetLabel);
-		} else{
+		} else if(currentFocusIndex == 2){
 			lv_anim_set_var(&blinkAnim, brightnessSlider->widgetLabel);
+		} else if(currentFocusIndex == 3){
+			lv_anim_set_var(&blinkAnim, frontSensorSelector->widgetLabel);
+		} else if(currentFocusIndex == 4){
+			lv_anim_set_var(&blinkAnim, bottomSensorSelector->widgetLabel);
+		} else{
+			lv_anim_set_var(&blinkAnim, activitySelector->widgetLabel);
 		}
 		lv_anim_start(&blinkAnim);
-		lv_group_focus_obj(lv_obj_get_child(innerContent, currentFocusIndex));
+
+		lv_obj_t* focused = lv_obj_get_child(innerContent, currentFocusIndex);
+		lv_group_focus_obj(focused);
+
+		lv_obj_update_layout(focused);
+		const int32_t rowTop = lv_obj_get_style_y(focused, 0) - ScrollMargin;
+		const int32_t rowBottom = lv_obj_get_style_y(focused, 0) + lv_obj_get_height(focused) + ScrollMargin;
+		const int32_t viewHeight = lv_obj_get_content_height(innerContent);
+		int32_t scrollY = lv_obj_get_scroll_y(innerContent);
+		if(rowTop < scrollY){
+			scrollY = rowTop;
+		}
+		if(rowBottom > scrollY + viewHeight){
+			scrollY = rowBottom - viewHeight;
+		}
+		if(scrollY < 0){
+			scrollY = 0;
+		}
+		lv_obj_scroll_to_y(innerContent, scrollY, LV_ANIM_OFF);
 	};
 
 	// Theme selector
@@ -148,9 +182,43 @@ void SettingsWindow::buildUI(lv_obj_t* parent){
 	lv_obj_set_pos(*brightnessSlider, 2, 48);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
+	const std::function<void(FrontSensorMode)> frontSensorValCb = [this](const FrontSensorMode mode) {
+		SettingsStruct currentSet = settings->get();
+		currentSet.frontSensor = mode;
+		settings->set(currentSet);
+	};
+	frontSensorSelector = new FrontSensorSelector(innerContent, initSet.frontSensor, switchCb, frontSensorValCb);
+	lv_obj_set_pos(*frontSensorSelector, 2, 59);
+	lv_group_add_obj(inputGroup, *frontSensorSelector);
+
+	const std::function<void(BottomSensorMode)> bottomSensorValCb = [this](const BottomSensorMode mode) {
+		SettingsStruct currentSet = settings->get();
+		currentSet.bottomSensor = mode;
+		settings->set(currentSet);
+	};
+	bottomSensorSelector = new BottomSensorSelector(innerContent, initSet.bottomSensor, switchCb, bottomSensorValCb);
+	lv_obj_set_pos(*bottomSensorSelector, 2, 81);
+	lv_group_add_obj(inputGroup, *bottomSensorSelector);
+
+	const std::function<void(ActivityMode)> activityValCb = [this](const ActivityMode mode) {
+		SettingsStruct currentSet = settings->get();
+		currentSet.activityMode = mode;
+		settings->set(currentSet);
+	};
+	activitySelector = new ActivitySelector(innerContent, initSet.activityMode, switchCb, activityValCb);
+	lv_obj_set_pos(*activitySelector, 2, 103);
+	lv_obj_set_style_margin_bottom(*activitySelector, 4, 0);
+	lv_group_add_obj(inputGroup, *activitySelector);
+
 	lv_group_set_editing(inputGroup, true);
 
 	updateLayout();
+}
+
+void SettingsWindow::syncRobotSettings(const SettingsStruct& currentSet){
+	frontSensorSelector->setValue(currentSet.frontSensor);
+	bottomSensorSelector->setValue(currentSet.bottomSensor);
+	activitySelector->setValue(currentSet.activityMode);
 }
 
 void SettingsWindow::updateLayout(){

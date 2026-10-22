@@ -77,6 +77,18 @@ void Com::sendScenario(BB::Action::Scenario scenario, ScenarioData data){
 	txBuf.clear();
 }
 
+void Com::sendSettings(SettingsData data){
+	Ctrl::Command command = Ctrl::Settings;
+	txBuf.resize(sizeof(Ctrl::Command));
+	memcpy(txBuf.data(), &command, sizeof(Ctrl::Command));
+
+	txBuf.resize(txBuf.size() + sizeof(SettingsData));
+	memcpy(txBuf.data() + sizeof(Ctrl::Command), &data, sizeof(SettingsData));
+
+	txChar->write(txBuf);
+	txBuf.clear();
+}
+
 void Com::tick(float deltaTime) noexcept{
 	if(status != ConnStatus::Connected) return;
 
