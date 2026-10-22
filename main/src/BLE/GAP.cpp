@@ -122,6 +122,12 @@ void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* 
 
 		case ESP_GAP_BLE_SCAN_START_COMPLETE_EVT:
 			ESP_LOGI(TAG, "BLE scan started, status: %d", param->scan_start_cmpl.status);
+			// A scan that never started would leave the GAP in Scanning forever - report it, so it's retried
+			if(param->scan_start_cmpl.status != ESP_BT_STATUS_SUCCESS && state == Scanning){
+				ESP_LOGW(TAG, "BLE scan failed to start: %d", param->scan_start_cmpl.status);
+				state = Idle;
+				onConnEvent.broadcast(ConnEvent::Failed);
+			}
 			break;
 
 		case ESP_GAP_BLE_SCAN_RESULT_EVT:

@@ -104,5 +104,9 @@ void PairingScreen::handleButtonEvent(const Button btn, const ButtonInput::Actio
 }
 
 void PairingScreen::loop(){
-
+	// (Re)connect whenever BLE is idle. A link can drop while it is still being set up - e.g. the controller was
+	// restarted while connected and the robot still holds the previous link - and nothing else retries then.
+	if(!gap->isConnected() && !gap->isConnecting()){
+		gap->connect();
+	}
 }
